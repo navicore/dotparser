@@ -1,13 +1,14 @@
-mod parser;
-pub mod types;
+pub mod dot;
+pub mod events;
+pub mod plantuml;
+mod types;
 
-// Re-export types that all parsers will use
-pub use types::{GraphData, NodeInfo, NodeType};
+// Main event-based API
+pub use events::{
+    Direction, EdgeType, EventResult, GraphEvent, GroupType, LayoutType, MessageType, NodeType,
+    Position, Properties, StateType, Style,
+};
 
-// Parser modules - each format gets its own module
-pub mod dot {
-    pub use crate::parser::parse_dot_file as parse;
-}
-
-// Future: pub mod plantuml { ... }
-// Future: pub mod mermaid { ... }
+// Legacy types - deprecated
+#[deprecated(note = "Use the event-based API instead")]
+pub use types::{GraphData, NodeInfo};
