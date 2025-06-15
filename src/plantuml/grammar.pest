@@ -1,0 +1,113 @@
+// PlantUML Sequence Diagram Grammar
+
+// Main rules
+plantuml = { SOI ~ NEWLINE* ~ start_tag ~ diagram_content ~ end_tag ~ EOI }
+start_tag = { "@startuml" ~ NEWLINE? }
+end_tag = { "@enduml" ~ NEWLINE? }
+
+diagram_content = { element* }
+
+element = _{
+    participant_declaration
+    | message
+    | activation
+    | deactivation
+    | note
+    | divider
+    | control_block
+    | comment
+    | NEWLINE
+}
+
+// Participants
+participant_declaration = {
+    participant_type ~ identifier ~ alias? ~ NEWLINE
+}
+
+participant_type = {
+    "actor" | "participant" | "database" | "entity" | "control" | "boundary" | "collections" | "queue"
+}
+
+alias = { "as" ~ identifier }
+
+// Messages
+message = {
+    identifier ~ arrow ~ identifier ~ message_label? ~ NEWLINE
+}
+
+arrow = {
+    "->>" | "->" | "-->" | "-->>" |
+    "<<-" | "<-" | "<--" | "<<--" |
+    "<->" | "<-->" |
+    "-\\" | "\\-" | "\\\\" | "//" | "/-" | "-/"
+}
+
+message_label = { ":" ~ message_text }
+message_text = { (!NEWLINE ~ ANY)+ }
+
+// Activation/Deactivation
+activation = { "activate" ~ identifier ~ NEWLINE }
+deactivation = { "deactivate" ~ identifier ~ NEWLINE }
+
+// Notes
+note = {
+    note_position ~ ":" ~ note_text ~ NEWLINE
+}
+
+note_position = {
+    "note" ~ ("left" | "right" | "over") ~ identifier ~ ("," ~ identifier)*
+}
+
+note_text = { (!NEWLINE ~ ANY)+ }
+
+// Control blocks
+control_block = {
+    alt_block | loop_block | opt_block | par_block
+}
+
+alt_block = {
+    "alt" ~ condition? ~ NEWLINE ~
+    diagram_content ~
+    else_clause* ~
+    "end" ~ NEWLINE
+}
+
+else_clause = {
+    "else" ~ condition? ~ NEWLINE ~
+    diagram_content
+}
+
+loop_block = {
+    "loop" ~ condition? ~ NEWLINE ~
+    diagram_content ~
+    "end" ~ NEWLINE
+}
+
+opt_block = {
+    "opt" ~ condition? ~ NEWLINE ~
+    diagram_content ~
+    "end" ~ NEWLINE
+}
+
+par_block = {
+    "par" ~ condition? ~ NEWLINE ~
+    diagram_content ~
+    ("else" ~ NEWLINE ~ diagram_content)* ~
+    "end" ~ NEWLINE
+}
+
+condition = { (!NEWLINE ~ ANY)+ }
+
+// Other elements
+divider = { "==" ~ divider_text ~ "==" ~ NEWLINE }
+divider_text = { (!("==" | NEWLINE) ~ ANY)+ }
+
+comment = { ("'" | "/'") ~ (!NEWLINE ~ ANY)* ~ NEWLINE }
+
+// Basic tokens
+identifier = { quoted_string | simple_identifier }
+simple_identifier = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }
+quoted_string = { "\"" ~ inner_string ~ "\"" }
+inner_string = @{ (!"\"" ~ ANY)* }
+
+WHITESPACE = _{ " " | "\t" }
