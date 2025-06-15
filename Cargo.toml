@@ -1,0 +1,15 @@
+[package]
+name = "dotparser"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+authors = ["Ed Sweeney <ed@onextent.com>"]
+description = "diagram file parser for Bevy visualization of diagrams"
+repository = "https://github.com/navicore/dotparser"
+readme = "README.md"
+keywords = ["graphviz", "dot", "visualization"]
+categories = ["visualization", "graphics"]
+
+[dependencies]
+petgraph = "0.8"
+
