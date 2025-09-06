@@ -77,62 +77,64 @@ fn parse_nodes(lines: &[&str], events: &mut Vec<GraphEvent>, node_attributes: &m
         }
 
         // Parse node definitions with attributes
-        if trimmed.contains('[') && trimmed.contains(']') && !trimmed.contains("->") {
-            if let Some(node_end) = trimmed.find('[') {
-                let node_id = trimmed[..node_end].trim().trim_matches('"');
+        if trimmed.contains('[')
+            && trimmed.contains(']')
+            && !trimmed.contains("->")
+            && let Some(node_end) = trimmed.find('[')
+        {
+            let node_id = trimmed[..node_end].trim().trim_matches('"');
 
-                // Extract attributes
-                let attrs_str = &trimmed[node_end + 1..trimmed.rfind(']').unwrap_or(trimmed.len())];
-                let mut node_type = None;
-                let mut level = None;
-                let mut label = None;
-                let mut properties = Properties::default();
-                let mut custom_props = HashMap::new();
+            // Extract attributes
+            let attrs_str = &trimmed[node_end + 1..trimmed.rfind(']').unwrap_or(trimmed.len())];
+            let mut node_type = None;
+            let mut level = None;
+            let mut label = None;
+            let mut properties = Properties::default();
+            let mut custom_props = HashMap::new();
 
-                // Parse attributes
-                for attr in attrs_str.split(',') {
-                    let parts: Vec<&str> = attr.split('=').collect();
-                    if parts.len() == 2 {
-                        let key = parts[0].trim();
-                        let value = parts[1].trim().trim_matches('"');
+            // Parse attributes
+            for attr in attrs_str.split(',') {
+                let parts: Vec<&str> = attr.split('=').collect();
+                if parts.len() == 2 {
+                    let key = parts[0].trim();
+                    let value = parts[1].trim().trim_matches('"');
 
-                        match key {
-                            "type" => node_type = Some(value.to_string()),
-                            "level" => level = value.parse::<u32>().ok(),
-                            "label" => label = Some(value.to_string()),
-                            _ => {
-                                custom_props.insert(key.to_string(), value.to_string());
-                            }
+                    match key {
+                        "type" => node_type = Some(value.to_string()),
+                        "level" => level = value.parse::<u32>().ok(),
+                        "label" => label = Some(value.to_string()),
+                        _ => {
+                            custom_props.insert(key.to_string(), value.to_string());
                         }
                     }
                 }
-
-                // Store attributes for later use
-                node_attributes.insert(
-                    node_id.to_string(),
-                    (
-                        node_type.clone(),
-                        level,
-                        label.clone(),
-                        custom_props.clone(),
-                    ),
-                );
-
-                // Set position if level is specified
-                if let Some(lvl) = level {
-                    properties.position = Some(Position::Layer { level: lvl });
-                }
-
-                properties.custom = custom_props;
-
-                // Emit node event
-                events.push(GraphEvent::AddNode {
-                    id: node_id.to_string(),
-                    label: label.or_else(|| Some(node_id.to_string())),
-                    node_type: node_type.map_or(NodeType::Node, NodeType::Custom),
-                    properties,
-                });
             }
+
+            // Store attributes for later use
+            node_attributes.insert(
+                node_id.to_string(),
+                (
+                    node_type.clone(),
+                    level,
+                    label.clone(),
+                    custom_props.clone(),
+                ),
+            );
+
+            // Set position if level is specified
+            if let Some(lvl) = level {
+                properties.position = Some(Position::Layer { level: lvl });
+            }
+
+            properties.custom = custom_props;
+
+            // Emit node event
+            events.push(GraphEvent::AddNode {
+                id: node_id.to_string(),
+                label: label.or_else(|| Some(node_id.to_string())),
+                node_type: node_type.map_or(NodeType::Node, NodeType::Custom),
+                properties,
+            });
         }
     }
 }
@@ -207,14 +209,14 @@ fn parse_edges(
 fn extract_rankdir(content: &str) -> Option<String> {
     for line in content.lines() {
         let trimmed = line.trim();
-        if trimmed.starts_with("rankdir") {
-            if let Some(eq_pos) = trimmed.find('=') {
-                let value = trimmed[eq_pos + 1..]
-                    .trim()
-                    .trim_end_matches(';')
-                    .trim_matches('"');
-                return Some(value.to_string());
-            }
+        if trimmed.starts_with("rankdir")
+            && let Some(eq_pos) = trimmed.find('=')
+        {
+            let value = trimmed[eq_pos + 1..]
+                .trim()
+                .trim_end_matches(';')
+                .trim_matches('"');
+            return Some(value.to_string());
         }
     }
     None
@@ -273,17 +275,17 @@ fn parse_nested_subgraphs_to_events(content: &str, events: &mut Vec<GraphEvent>)
             });
 
             // Connect to parent if exists
-            if stack.len() > 1 {
-                if let Some((_, Some(parent_id))) = stack.iter().rev().nth(1) {
-                    events.push(GraphEvent::AddEdge {
-                        id: format!("{parent_id}->{node_id}"),
-                        from: parent_id.clone(),
-                        to: node_id.clone(),
-                        edge_type: EdgeType::Directed,
-                        label: None,
-                        properties: Properties::default(),
-                    });
-                }
+            if stack.len() > 1
+                && let Some((_, Some(parent_id))) = stack.iter().rev().nth(1)
+            {
+                events.push(GraphEvent::AddEdge {
+                    id: format!("{parent_id}->{node_id}"),
+                    from: parent_id.clone(),
+                    to: node_id.clone(),
+                    edge_type: EdgeType::Directed,
+                    label: None,
+                    properties: Properties::default(),
+                });
             }
 
             // Update stack with node ID
