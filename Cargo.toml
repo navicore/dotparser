@@ -13,5 +13,5 @@ categories = ["visualization", "graphics"]
 [dependencies]
 petgraph = "0.8"
 pest = "2.7"
-pest_derive = "2.7"
+pest_derive = "2.8"
 
