@@ -1,3 +1,8 @@
+<!-- ghmig:moved -->
+> **This repository has moved to [https://git.navicore.tech/navicore/dotparser](https://git.navicore.tech/navicore/dotparser).**
+>
+> The GitHub copy is archived and no longer maintained.
+
 # dotparser
 
 A Rust library for parsing Graphviz DOT files into graph structures.
